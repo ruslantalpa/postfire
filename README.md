@@ -18,7 +18,7 @@ yarn install --cwd grpc
 node grpc/src/example_client.mjs
 ```
 
-### add a row directly to the database (terminal 2)
+### add a row directly to the database and see the client react (terminal 2)
 ```
 . .env
 ```
