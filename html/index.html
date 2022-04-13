@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.8.2/css/all.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.4.2/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.4.2/firebase-firestore.js"></script>
+
+    <script>
+      const active = [
+        { id: 'j6jAlnHBErshbReeylG5', completed: false, todo: 'item_1', createTime: new Date('2021-04-28 08:32:03.895603'), updateTime: new Date('2021-04-28 08:32:03.895603') },
+        { id: 'v3HSJRQS6U2HCvDMVJPA', completed: false, todo: 'item_2', createTime: new Date('2021-04-28 08:32:03.895603'), updateTime: new Date('2021-04-28 08:32:03.895603') },
+        { id: 'vwDmVBPwwlJUrnrnBuKR', completed: false, todo: 'item_3', createTime: new Date('2021-04-28 08:32:03.895603'), updateTime: new Date('2021-04-28 08:32:03.895603') },
+        { id: 'wLndVkgCBbHJVpXVGAR4', completed: false, todo: 'item_4', createTime: new Date('2021-04-27 08:32:03.895603'), updateTime: new Date('2021-04-28 08:32:03.895603') },
+      ]
+      const completed = [
+        { id: '3Wu2gmFW0JGc8udSI4VC', completed: true,  todo: 'item_5', createTime: new Date('2021-04-28 08:32:03.895603'), updateTime: new Date('2021-04-28 08:32:03.895603') },
+        { id: 'AkUsRE1QQvcb6RaqLZlL', completed: true,  todo: 'item_6', createTime: new Date('2021-04-28 08:32:03.895603'), updateTime: new Date('2021-04-28 08:32:03.895603') },
+        { id: 'f28LoGTxF14FYO5B3X6W', completed: true,  todo: 'item_7', createTime: new Date('2021-04-28 08:32:03.895603'), updateTime: new Date('2021-04-29 08:32:03.895603') },
+      ]
+
+      function addTask(id, data){
+        const node = $("<div id='" + id + "' class='task'></div>").text(data.todo);
+        const del = $("<i class='fas fa-trash-alt' onClick='deleteTask(this)'></i>");
+        const check = $("<i class='fas fa-check' onClick='completeTask(this)'></i>");
+
+        node.append(del);
+        if(data.completed){
+          $(".comp").append(node);
+        }
+        else{
+          node.append(check);
+          $(".notcomp").append(node);
+        }
+      }
+
+      function completeTask(n){
+        const p = $(n).parent();
+        const id = p.attr('id');
+        p.fadeOut(function(){
+          $(".comp").append(p);
+          p.fadeIn();
+        });
+        $(n).remove();
+      }
+
+      function deleteTask(n){
+        const p = $(n).parent();
+        const id = p.attr('id');
+        p.fadeOut(function(){
+          p.remove();
+        });
+      }
+
+      function updateDom(root, tasks){
+        let lastNode = null
+        const currentIds = root.children('.task').toArray().map( n => n.id );
+        const newIds = tasks.map(t => t.id);
+        const deleted = $(currentIds).not(newIds).get();
+        deleted.forEach(id => {
+          const n = $('#'+id)
+          n.fadeOut(function(){
+            n.remove();
+          });
+        })
+        tasks.forEach(task => {
+          let node = $( "#"+task.id );
+          if( node.length ){
+            node.text(task.todo);
+            lastNode = node;
+          }
+          else {
+            node = $("<div id='" + task.id + "' class='task'></div>").text(task.todo);
+            const del = $("<i class='fas fa-trash-alt' onClick='deleteTask(this)'></i>");
+            const check = $("<i class='fas fa-check' onClick='completeTask(this)'></i>");
+            node.append(del);
+            node.hide();
+            if(!task.completed){
+              node.append(check);
+            }
+            if(lastNode){
+              node.insertAfter(lastNode).fadeIn();
+            }
+            else{
+              root.append(node).fadeIn();
+            }
+            
+            lastNode = node;
+          }
+        });
+      }
+      
+      function onLoad(){
+        const config = {
+            apiKey: 'firebase-dummy-key',
+            projectId: 'dummy-project-id'
+        };
+        firebase.initializeApp(config);
+        const db = firebase.firestore();
+        db.settings({
+            host: 'localhost:8443',
+            ssl: true
+        });
+        firebase.firestore.setLogLevel('debug');
+        const todosRef = db.collection('todos');
+        const today = (new Date()).toISOString().split('T')[0];
+        const query_active = todosRef.where('completed', '==', false).where('createTime', '>=', today);
+        query_active.onSnapshot(r => {
+            console.log('new active');
+            r.forEach(function(doc) {
+                console.log(doc.data());
+            });
+            console.log(`Received query snapshot of size ${r.size}`);
+        }, err => {
+            console.log(`Encountered error: ${err}`);
+        });
+        // completed.sort((a, b) => { return b.updateTime.getTime() - a.updateTime.getTime() })
+        // active.sort((a, b) => { return a.createTime.getTime() - b.createTime.getTime() })
+        // updateDom($(".comp"), completed)
+        // updateDom($(".notcomp"), active)
+      }
+    </script>
+  </head>
+  <body onload="onLoad()">
+    <div class="container">
+      <input type="text" class="txtb" placeholder="Add a task">
+      <div class="notcomp">
+        <h3>Not Completed</h3>
+      </div>
+      <div class="comp">
+        <h3>Completed</h3>
+      </div>
+    </div>
+  </body>
+</html>

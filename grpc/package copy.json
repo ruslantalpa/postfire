@@ -1,0 +1,46 @@
+{
+    "name": "subzero-grpc",
+    "version": "1.0.0",
+    "dependencies": {
+        
+        "@grpc/grpc-js": "^1.2.2",
+        "@types/inquirer": "^6.5.0",
+        "@types/lowdb": "^1.0.9",
+        "@types/yargs": "^15.0.3",
+        "cli-table": "^0.3.1",
+        "fp-ts": "^2.9.3",
+        "grpc-tools": "^1.10.0",
+        "inquirer": "^7.0.4",
+        "jsonwebtoken": "^8.5.1",
+        "lodash": "^4.17.15",
+        "lodash-id": "^0.14.0",
+        "lowdb": "^1.0.0",
+        "md5": "^2.3.0",
+        "node-fetch": "^2.6.1",
+        "protobufjs": "^6.10.2",
+        "uuid": "^8.3.2"
+    },
+    "devDependencies": {
+        "@babel/core": "^7.12.10",
+        "@babel/preset-env": "^7.12.11",
+        "@typescript-eslint/eslint-plugin": "^2.19.0",
+        "@typescript-eslint/parser": "^2.19.0",
+        "awesome-typescript-loader": "^5.2.1",
+        "babel-plugin-syntax-dynamic-import": "^6.18.0",
+        "eslint": "^6.8.0",
+        "firebase": "^8.4.2",
+        "@google-cloud/firestore": "^4.10.0",
+        "grpc_tools_node_protoc_ts": "^5.0.1",
+        "typescript": "^4.1.3",
+        "webpack": "^5.11.0",
+        "webpack-cli": "^4.2.0"
+    },
+    "scripts": {
+        "lint": "eslint --fix --ext .ts src",
+        "prebuild": "yarn run lint",
+        "clean": "rm -rf ./src/proto ./dist ./build && mkdir -p ./src/proto ./dist ./build",
+        "proto": "sh ./scripts/build-protos.sh",
+        "build": "yarn webpack --config webpack.config.js",
+        "start": "export $(cat .env | xargs) && node ./dist/grpc_server.js"
+    }
+}
