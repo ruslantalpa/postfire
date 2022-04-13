@@ -1,26 +1,28 @@
-# run
+
+This is an experiment to see if it's possible (it is) to emulate the grpc based firebase api (specificllly firestore) so that unmodified firebase SDK can connect and run on top of PostgreSQL.
+
+To see it in action run the following in your terminal
+
+Note: these commands do not work on arm architecture (apple M1)
+
+### start the rest/grpc server (terminal 1)
 ```
-docker-compose build
+docker-compose up -d
 ```
 
-
-# build grpc related code from source
+### start the node firebase client (terminal 1)
 ```
-cd grpc
+yarn install --cwd grpc
 ```
 ```
-yarn install --ignore-scripts
-cd node_modules/grpc-tools
-node_modules/.bin/node-pre-gyp  install --target_arch=x64
-cd ../../
+node grpc/src/example_client.mjs
 ```
 
+### add a row directly to the database (terminal 2)
 ```
-yarn proto
+. .env
 ```
-
 ```
-yarn build
+psql postgres://$SUPER_USER:$SUPER_USER_PASSWORD@localhost:$DB_PORT/$DB_NAME \
+-c "INSERT INTO data.todo (todo) VALUES ('new todo')"
 ```
-
-

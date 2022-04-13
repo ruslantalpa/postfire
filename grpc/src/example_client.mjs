@@ -10,8 +10,8 @@ firebase.initializeApp(config);
 
 const db = firebase.firestore();
 db.settings({
-    host: 'localhost:8443',
-    ssl: true
+    host: 'localhost:6789',
+    ssl: false
 });
 
 
@@ -19,51 +19,58 @@ db.settings({
 
    
 
-    const todosRef = db.collection('todos');
-    const query = todosRef.where('todo', '==', 'item_1')
+    const todos = db.collection('todos');
+    const query = todos.where('todo', '==', 'item_1')
     
     console.log('running the query once =================');
     const snapshot = await query.get();
     
+    let todo_id = null;
     if (snapshot.empty) {
       console.log('No matching documents.');
     }
 
     snapshot.forEach(doc => {
       console.log(doc.id, '=>', doc.data());
+      todo_id = doc.id
     });
 
-    // console.log('running the snapshot 1 =================');
-    // const query_completed = todosRef.where('completed', '==', true);
-    // query_completed.onSnapshot(r => {
-    //     console.log('new completed');
-    //     r.forEach(function(doc) {
-    //         console.log(doc.data());
-    //     });
-    //     console.log(`Received query snapshot of size ${r.size}`);
-    // }, err => {
-    //     console.log(`Encountered error: ${err}`);
-    // });
+    console.log('running the snapshot 1 =================');
+    const query_completed = todos.where('completed', '==', true);
+    query_completed.onSnapshot(r => {
+      console.log(`====== new data for snapshot 1 (${r.size} items)`);
+        r.forEach(function(doc) {
+            console.log(doc.data());
+        });
+        console.log(`======`);
+    }, err => {
+        console.log(`Encountered error: ${err}`);
+    });
 
-    // const today = (new Date()).toISOString().split('T')[0];
-    // console.log('running the snapshot 2 =================');
-    // const query_active = todosRef.where('completed', '==', false).where('createTime', '>=', today);
-    // query_active.onSnapshot(r => {
-    //     console.log('new active');
-    //     r.forEach(function(doc) {
-    //         console.log(doc.data());
-    //     });
-    //     console.log(`Received query snapshot of size ${r.size}`);
-    // }, err => {
-    //     console.log(`Encountered error: ${err}`);
-    // });
+    const today = (new Date()).toISOString().split('T')[0];
+    console.log('running the snapshot 2 =================');
+    const query_active = todos.where('completed', '==', false).where('createTime', '>=', today);
+    query_active.onSnapshot(r => {
+        console.log(`====== new data for snapshot 2 (${r.size} items)`);
+        r.forEach(function(doc) {
+            console.log(doc.data());
+        });
+        console.log(`======`);
+    }, err => {
+        console.log(`Encountered error: ${err}`);
+    });
 
    
 
-    // setTimeout(async function(){
-    //     console.log('updating one document ==============');
-    //     await db.collection('cities').doc('LA').update({capital: true});
-    // }, 5000);
+    setTimeout(async function(){
+        console.log(`===== updating one document (id = ${todo_id})`);
+        await todos.doc(`${todo_id}`).update({completed: true});
+    }, 5000);
+
+    setTimeout(async function(){
+      console.log(`===== updating one document (id = ${todo_id})`);
+      await todos.doc(`${todo_id}`).update({completed: false});
+  }, 10000);
     
     
 })();
